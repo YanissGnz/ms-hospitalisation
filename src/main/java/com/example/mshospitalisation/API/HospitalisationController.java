@@ -330,7 +330,7 @@ public class HospitalisationController {
                 }
             } else if (Objects.equals(status, "disponible")) {
                 room.getBeds().forEach(b -> {
-                    b.setStatus(status);
+                    b.setStatus("libre");
                     bedRepository.save(b);
                 });
                 room.setStatus(status);
