@@ -1,6 +1,6 @@
 package com.example.mshospitalisation.entities;
 
-import com.example.mshospitalisation.model.Patient;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,28 +11,14 @@ import javax.persistence.*;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class Lit {
-
+public class ActConsumable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private Long numero;
-    private String state;
-
-    private Long idChambre;
-
-    @ManyToOne
-    private Chambre chambre;
-
-    @Transient
-    private Patient patient;
-
-    @OneToOne
+    private Long idConsumable;
+    private String name;
+    private int qte;
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     private Act act;
-
-    @OneToOne
-    private Hospitalisation hospitalisation;
-
-
 }

@@ -21,30 +21,31 @@ public class Hospitalisation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Temporal(TemporalType.DATE)
-    private Date date_debut;
-
-
-    @Temporal(TemporalType.DATE)
-    private Date date_fin;
-
-
-    private Long idInfermier;
-    private Long idMedcin;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date endDate;
+    private Long idNurse;
+    private Long idDoctor;
+    @Column(unique = true)
     private Long idPatient;
-    private Long idLit;
+    private String idBed;
+    private String reason;
+    @Temporal(TemporalType.DATE)
+    private Date plannedOperationDate;
+    private String other;
 
     @Transient
-    private Staff infermier;
+    private Staff nurse;
 
     @Transient
-    private Staff medecin;
+    private Staff doctor;
 
     @Transient
     private Patient patient;
 
-    @OneToOne(mappedBy = "hospitalisation")
-    private Lit lit;
+    @Transient
+    private Bed bed;
 
 
 }

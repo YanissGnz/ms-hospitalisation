@@ -16,7 +16,7 @@ import javax.persistence.Id;
 public class Staff {
 
     private Long id;
-    private String last_name;
-    private String first_name;
+    private String lastName;
+    private String firstName;
 
 }

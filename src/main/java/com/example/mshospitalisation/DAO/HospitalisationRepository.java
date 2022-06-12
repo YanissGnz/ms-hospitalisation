@@ -6,4 +6,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource
 public interface HospitalisationRepository extends JpaRepository<Hospitalisation, Long> {
+    Hospitalisation getHospitalisationByIdPatient(Long idPatient);
 }

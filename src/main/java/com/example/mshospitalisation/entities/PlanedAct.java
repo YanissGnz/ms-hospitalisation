@@ -1,5 +1,6 @@
 package com.example.mshospitalisation.entities;
 
+import com.example.mshospitalisation.model.Medicine;
 import com.example.mshospitalisation.model.Patient;
 import com.example.mshospitalisation.model.Staff;
 import lombok.AllArgsConstructor;
@@ -7,48 +8,44 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-@Data
 @Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Act {
+public class PlanedAct {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String actType;
-    private String idBed;
     private Long idStaff;
     private Long idPatient;
-    private String description;
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
+    private String actType;
+    private String description;
+    private boolean isDone;
 
-    @OneToMany(mappedBy="act")
-    private List<ActMedicine> medicines;
 
-    @OneToMany(mappedBy="act")
-    private List<ActConsumable> consumables;
+    @ElementCollection
+    private List<Long> medicineList;
 
-    @Transient
-    private Staff staff;
-
-    @Transient
-    private Patient patient;
+    @ElementCollection
+    private List<Long> consumablesList;
 
     @Transient
-    private Bed bed;
+    Patient patient;
 
-    private String type;
-    private String rythme;
-    private String contenance;
-    private Long durée;
-    private String Ablation;
-    private String siège;
-    private String évolution;
-    private String sonde_vésicale;
+    @Transient
+    Staff staff;
 
+    @Transient
+    Collection<Medicine> medicines;
+
+    @Transient
+        Collection<Medicine> consumables;
 }

@@ -4,29 +4,27 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Collection;
 
 @Data
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class Chambre {
+public class Room {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    private String id;
     private String block;
+    private int number;
     private String aile;
-    private Long Nbr_lit;
+    private int bedCount;
+    private String status;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "chambre" )
-    private Collection<Lit> lits;
+    @OneToMany(mappedBy = "room",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Collection<Bed> beds;
 
 
 }
