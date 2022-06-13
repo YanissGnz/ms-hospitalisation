@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Data
 @Entity
@@ -18,6 +19,8 @@ public class ActMedicine {
     private  Long idMedicine;
     private String name;
     private int qte;
+    @Temporal(TemporalType.DATE)
+    private Date date;
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Act act;

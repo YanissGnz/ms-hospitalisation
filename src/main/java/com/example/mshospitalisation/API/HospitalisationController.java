@@ -58,11 +58,11 @@ public class HospitalisationController {
         Act savedAct = actRepository.save(act);
         consumables.forEach(c -> {
             medicineProxy.editConCount(token, c.getIdConsumable(), -c.getQte(), act.getIdStaff());
-            actConsumableRepository.save(new ActConsumable(null, c.getIdConsumable(), c.getName(), c.getQte(), savedAct));
+            actConsumableRepository.save(new ActConsumable(null, c.getIdConsumable(), c.getName(), c.getQte(),act.getDate(), savedAct));
         });
         medicines.forEach(m -> {
             medicineProxy.editMedCount(token, m.getIdMedicine(), -m.getQte(), act.getIdStaff());
-            actMedicineRepository.save(new ActMedicine(null, m.getIdMedicine(), m.getName(), m.getQte(), savedAct));
+            actMedicineRepository.save(new ActMedicine(null, m.getIdMedicine(), m.getName(), m.getQte(),act.getDate(), savedAct));
         });
         return savedAct;
     }
@@ -340,5 +340,18 @@ public class HospitalisationController {
         }
         return 0;
     }
+
+    @GetMapping("/consumable/stats")
+    @PostAuthorize("hasAuthority('GET_PHARMACY_STATS')")
+    public List<Object[]> getConsumableStats(){
+            return actConsumableRepository.consumableStat();
+    }
+
+    @GetMapping("/medicine/stats")
+    @PostAuthorize("hasAuthority('GET_PHARMACY_STATS')")
+    public List<Object[]> getMedicineStats(){
+        return actMedicineRepository.medicineStats();
+    }
+
 
 }
