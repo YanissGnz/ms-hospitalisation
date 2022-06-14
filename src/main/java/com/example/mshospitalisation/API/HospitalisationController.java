@@ -49,7 +49,11 @@ public class HospitalisationController {
     @Autowired
     private ActConsumableRepository actConsumableRepository;
 
+    @Autowired
+    private PlanedActConsumableRepo planedActConsumableRepo;
 
+    @Autowired
+    private PlanedActMedicineRepo planedActMedicineRepo;
     @PostMapping("/hospitalization/acts")
     @PostAuthorize("hasAuthority('ADD_HOSPITALISATION_ACTS')")
     public Act AddAct(@RequestHeader("Authorization") String token, @RequestBody Act act) {
@@ -214,7 +218,7 @@ public class HospitalisationController {
             bedRepository.save(bed);
 
             patientProxy.hospitalizePatient(token, hospitalisation.getIdPatient(), idStaff);
-
+            patientProxy.reasonHospitalisationPatient(token, hospitalisation.getIdPatient(), hospitalisation.getReason());
             return hospitalisationRepository.save(hospitalisation);
         }
         return null;
@@ -250,7 +254,18 @@ public class HospitalisationController {
     @PostMapping("/hospitalization/planed-acts")
     @PostAuthorize("hasAuthority('PLAN_HOSPITALISATION_ACTS')")
     public PlanedAct AddToDoActs(@RequestBody PlanedAct planedAct) {
-        return planedActRepository.save(planedAct);
+        List<PlanedActMedicines> medicines = planedAct.getMedicines();
+        List<PlanedActConsumable> consumables = planedAct.getConsumables();
+        PlanedAct savedAct = planedActRepository.save(planedAct);
+        consumables.forEach(c -> {
+            //send notification
+            planedActConsumableRepo.save(new PlanedActConsumable(null, c.getIdConsumable(), c.getName(), c.getQte(),planedAct.getDate(), savedAct));
+        });
+        medicines.forEach(m -> {
+            //send notification
+            planedActMedicineRepo.save(new PlanedActMedicines(null, m.getIdMedicine(), m.getName(), m.getQte(),planedAct.getDate(), savedAct));
+        });
+        return savedAct;
     }
 
     @PutMapping("/hospitalization/planed-acts/done/{id}")
@@ -274,20 +289,6 @@ public class HospitalisationController {
                     planedAct.setPatient(patientProxy.getPatientInfo(token, planedAct.getIdPatient()));
                 if (Objects.nonNull(planedAct.getIdStaff()))
                     planedAct.setStaff(staffProxy.getStaff(token, planedAct.getIdStaff()));
-                if (Objects.nonNull(planedAct.getConsumablesList())) {
-                    Collection<Medicine> consumables = new ArrayList<>();
-                    planedAct.getConsumablesList().forEach(c -> {
-                        consumables.add(medicineProxy.getConsumable(token, c));
-                    });
-                    planedAct.setConsumables(consumables);
-                }
-                if (Objects.nonNull(planedAct.getMedicineList())) {
-                    Collection<Medicine> medicines = new ArrayList<>();
-                    planedAct.getMedicineList().forEach(m -> {
-                        medicines.add(medicineProxy.getMedicine(token, m));
-                    });
-                    planedAct.setMedicines(medicines);
-                }
             });
 
             return planedActRepository.getAllByIdStaff(idStaff);
@@ -353,5 +354,9 @@ public class HospitalisationController {
         return actMedicineRepository.medicineStats();
     }
 
-
+    @GetMapping("/hospitalization/stats")
+    @PostAuthorize("hasAuthority('GET_PATIENTS_STATS')")
+    public List<Object[]> getHospitalisationStats(){
+        return hospitalisationRepository.countHospitalisationByreson();
+    }
 }

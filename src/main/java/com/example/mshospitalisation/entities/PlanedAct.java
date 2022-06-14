@@ -31,21 +31,15 @@ public class PlanedAct {
     private boolean isDone;
 
 
-    @ElementCollection
-    private List<Long> medicineList;
+    @OneToMany(mappedBy="planedAct")
+    private List<PlanedActMedicines> medicines;
 
-    @ElementCollection
-    private List<Long> consumablesList;
+    @OneToMany(mappedBy="planedAct")
+    private List<PlanedActConsumable> consumables;
 
     @Transient
     Patient patient;
 
     @Transient
     Staff staff;
-
-    @Transient
-    Collection<Medicine> medicines;
-
-    @Transient
-        Collection<Medicine> consumables;
 }

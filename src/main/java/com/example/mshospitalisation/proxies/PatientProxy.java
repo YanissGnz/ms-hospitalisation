@@ -5,8 +5,8 @@ import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClient;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "ms-patient")
-@LoadBalancerClient(name = "ms-patient")
+@FeignClient(name = "ms-patient" , url="8090")
+
 public interface PatientProxy {
     @GetMapping("api/patients/info/{id}")
     Patient getPatientInfo(@RequestHeader("Authorization") String token, @PathVariable("id") Long id);
@@ -15,4 +15,8 @@ public interface PatientProxy {
     void hospitalizePatient(@RequestHeader("Authorization") String token, @PathVariable("id") Long id,@RequestParam("idStaff") Long idStaff);
 
 
+    @PutMapping ("api/patients/reason/{id}")
+    void reasonHospitalisationPatient(@RequestHeader("Authorization") String token, @PathVariable("id") Long id,@RequestParam("reason") String reason);
 }
+
+
