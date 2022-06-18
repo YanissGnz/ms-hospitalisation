@@ -24,6 +24,7 @@ public class PlanedAct {
     private Long id;
     private Long idStaff;
     private Long idPatient;
+    private String idBed;
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
     private String actType;

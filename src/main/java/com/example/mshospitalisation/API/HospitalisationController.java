@@ -2,7 +2,7 @@ package com.example.mshospitalisation.API;
 
 import com.example.mshospitalisation.DAO.*;
 import com.example.mshospitalisation.entities.*;
-import com.example.mshospitalisation.model.Medicine;
+import com.example.mshospitalisation.model.Staff;
 import com.example.mshospitalisation.proxies.MedicineProxy;
 import com.example.mshospitalisation.proxies.PatientProxy;
 import com.example.mshospitalisation.proxies.StaffProxy;
@@ -253,16 +253,15 @@ public class HospitalisationController {
 
     @PostMapping("/hospitalization/planed-acts")
     @PostAuthorize("hasAuthority('PLAN_HOSPITALISATION_ACTS')")
-    public PlanedAct AddToDoActs(@RequestBody PlanedAct planedAct) {
+    public PlanedAct AddToDoActs(@RequestHeader("AUTHORIZATION") String token,@RequestBody PlanedAct planedAct) {
         List<PlanedActMedicines> medicines = planedAct.getMedicines();
         List<PlanedActConsumable> consumables = planedAct.getConsumables();
         PlanedAct savedAct = planedActRepository.save(planedAct);
+        Staff staff = staffProxy.getStaff(token,planedAct.getIdStaff());
         consumables.forEach(c -> {
-            //send notification
             planedActConsumableRepo.save(new PlanedActConsumable(null, c.getIdConsumable(), c.getName(), c.getQte(),planedAct.getDate(), savedAct));
         });
         medicines.forEach(m -> {
-            //send notification
             planedActMedicineRepo.save(new PlanedActMedicines(null, m.getIdMedicine(), m.getName(), m.getQte(),planedAct.getDate(), savedAct));
         });
         return savedAct;
@@ -270,14 +269,28 @@ public class HospitalisationController {
 
     @PutMapping("/hospitalization/planed-acts/done/{id}")
     @PostAuthorize("hasAuthority('ADD_HOSPITALISATION_ACTS')")
-    public PlanedAct finishAct(@PathVariable("id") Long id) {
+    public PlanedAct finishAct(@RequestHeader("Authorization") String token,@PathVariable("id") Long id) {
         PlanedAct planedAct = planedActRepository.getById(id);
         planedAct.setDone(true);
+        Act act = new Act(null,planedAct.getActType(),planedAct.getIdBed(),
+                planedAct.getIdStaff(), planedAct.getIdPatient(),
+                planedAct.getDescription(),new Date(),null,null,null,null,null );
+        Act savedAct = actRepository.save(act);
+        List<ActConsumable> consumables = new ArrayList<>();
+        List<ActMedicine> medicines = new ArrayList<>();
+
+        planedAct.getConsumables().forEach(c -> {
+            medicineProxy.editConCount(token, c.getIdConsumable(), -c.getQte(), act.getIdStaff());
+            actConsumableRepository.save(new ActConsumable(null, c.getIdConsumable(), c.getName(), c.getQte(),act.getDate(), savedAct));
+        });
+        planedAct.getMedicines().forEach(m -> {
+            medicineProxy.editMedCount(token, m.getIdMedicine(), -m.getQte(), act.getIdStaff());
+            actMedicineRepository.save(new ActMedicine(null, m.getIdMedicine(), m.getName(), m.getQte(),act.getDate(), savedAct));
+        });
         return planedActRepository.save(planedAct);
     }
 
     @GetMapping("/hospitalization/planed-acts")
-    @PostAuthorize("hasAuthority('ADD_HOSPITALISATION_ACTS')")
     public List<PlanedAct> getToDoActs(@RequestHeader("AUTHORIZATION") String token, @RequestParam("idStaff") Long idStaff) {
         if (Objects.nonNull(planedActRepository.getAllByIdStaff(idStaff))) {
 

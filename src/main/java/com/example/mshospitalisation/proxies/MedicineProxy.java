@@ -19,5 +19,4 @@ public interface MedicineProxy {
 
     @PutMapping("api/consommables/{id}/change-qte")
     void editConCount(@RequestHeader("Authorization") String token,@PathVariable("id") Long idMed, @RequestParam("qte") int qte, @RequestParam("idStaff") Long idStaff);
-
 }

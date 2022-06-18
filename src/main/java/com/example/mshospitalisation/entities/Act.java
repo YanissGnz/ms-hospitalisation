@@ -42,13 +42,4 @@ public class Act {
     @Transient
     private Bed bed;
 
-    private String type;
-    private String rythme;
-    private String contenance;
-    private Long durée;
-    private String Ablation;
-    private String siège;
-    private String évolution;
-    private String sonde_vésicale;
-
 }
